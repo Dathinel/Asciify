@@ -41,13 +41,11 @@ impl AsciiArt {
     }
 
     fn brightness_of_pixel_to_ascii_char(&self, pixel: u8) -> char {
-        // for image this ramp is better
-        let ramp: &[u8];
-        if self.mode == AsciiMode::Image {
-            ramp = b" .:-=+*#%@";
+        let ramp: &[u8] = if self.mode == AsciiMode::Image {
+            b" .:-=+*#%@"
         } else {
-            ramp = b"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
-        }
+            b"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+        };
 
         let idx = (pixel as usize * (ramp.len() - 1)) / 255;
         char::from(ramp[idx])
