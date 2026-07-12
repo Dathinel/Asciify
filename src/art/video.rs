@@ -1,6 +1,6 @@
 use std::{fs, process::Command};
 
-use crate::art::ascii::AsciiArt;
+use crate::art::ascii::{AsciiArt, AsciiMode};
 
 pub fn extract_frames(video_path: &str, output_path: &str) {
     std::fs::create_dir_all(output_path).expect("couldn't create out dir");
@@ -14,7 +14,7 @@ pub fn extract_frames(video_path: &str, output_path: &str) {
 
 pub fn generate_ascii_frames(frames_dir_path: &str, output_path: &str) {
     std::fs::create_dir_all(output_path).expect("couldn't create out dir");
-    let mut frames: Vec<_> = std::fs::read_dir(frames_dir_path)
+    let frames: Vec<_> = std::fs::read_dir(frames_dir_path)
         .unwrap()
         .map(|f| f.unwrap().path())
         .collect();
@@ -26,7 +26,7 @@ pub fn generate_ascii_frames(frames_dir_path: &str, output_path: &str) {
             .unwrap()
             .replace("frame", "ascii_frame");
         let save_path = format!("{output_path}/{name}");
-        let mut art = AsciiArt::new(frame.to_str().unwrap());
+        let mut art = AsciiArt::new(frame.to_str().unwrap(), AsciiMode::Video);
         art.generate(120, 80);
         art.save_ascii_img(&save_path);
     }

@@ -1,7 +1,7 @@
 use crate::art::video::{extract_frames, generate_ascii_frames, generate_ascii_video};
 use std::{env, process::exit};
 
-use crate::art::ascii::AsciiArt;
+use crate::art::ascii::{AsciiArt, AsciiMode};
 mod art;
 
 fn get_flag_and_source() -> Result<Vec<String>, String> {
@@ -38,7 +38,7 @@ fn main() {
         }
     }
     if media_format_flag == "--img" {
-        let mut art = AsciiArt::new(&source);
+        let mut art = AsciiArt::new(&source, AsciiMode::Image);
         art.generate(90, 120);
         art.save_ascii_img("out/ascii.png");
     } else if media_format_flag == "-video" {

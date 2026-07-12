@@ -6,16 +6,24 @@ use image::{DynamicImage, ImageReader, Luma, imageops::FilterType};
 
 static FONT: OnceLock<FontRef<'static>> = OnceLock::new();
 
+#[derive(PartialEq)]
+pub enum AsciiMode {
+    Image,
+    Video,
+}
+
 pub struct AsciiArt {
     src_img: DynamicImage,
     ascii_img: Option<DynamicImage>,
     ascii_string: Option<String>,
+    mode: AsciiMode,
 }
 
 impl AsciiArt {
-    pub fn new(img_path: &str) -> Self {
+    pub fn new(img_path: &str, mode: AsciiMode) -> Self {
         Self {
             src_img: Self::load_image(img_path),
+            mode,
             ascii_img: None,
             ascii_string: None,
         }
@@ -32,14 +40,17 @@ impl AsciiArt {
             })
     }
 
-    fn brightness_of_pixel_to_ascii_char(pixel: u8) -> char {
+    fn brightness_of_pixel_to_ascii_char(&self, pixel: u8) -> char {
         // for image this ramp is better
-        // const CHARS: &[u8] = b" .:-=+*#%@";
-        const CHARS: &[u8] =
-            b"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
+        let ramp: &[u8];
+        if self.mode == AsciiMode::Image {
+            ramp = b" .:-=+*#%@";
+        } else {
+            ramp = b"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
+        }
 
-        let idx = (pixel as usize * (CHARS.len() - 1)) / 255;
-        char::from(CHARS[idx])
+        let idx = (pixel as usize * (ramp.len() - 1)) / 255;
+        char::from(ramp[idx])
     }
 
     fn img_to_ascii_string(&self, width: u32, height: u32) -> String {
@@ -53,7 +64,7 @@ impl AsciiArt {
         for y in 0..h {
             for x in 0..w {
                 let Luma([v]) = *img.get_pixel(x, y);
-                let c = Self::brightness_of_pixel_to_ascii_char(v);
+                let c = self.brightness_of_pixel_to_ascii_char(v);
                 ascii_string.push(c);
             }
             ascii_string.push('\n');
